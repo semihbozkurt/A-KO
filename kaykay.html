@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanal Kart Çalışma Alanı (Carousel)</title>
+    
+    <!-- Bootstrap 5 CSS CDN -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    <style>
+        body {
+            background-color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .light{background-color: whitesmoke !important; color: black !important;}
+            .dark{background-color: black !important; color: white !important;}
+            .show{display: none !important;}
+
+            #heady{
+                width: 100vw;
+                height: 12vh;
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                display: flex;
+                justify-content: space-between; align-items: center;
+                background-color: blueviolet;
+                padding: 18px;
+                z-index: 100;
+            }
+            #heady a{
+                color: white;
+                
+            }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        /* Bootstrap Carousel Alanını Sınırlandırma */
+        .carousel-container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        /* 3B Kart Yapısı */
+        .kart-kapsayici {
+            height: 300px;
+            width: 100%;
+            perspective: 1000px;
+            margin: 0 auto;
+        }
+
+        .kart-ic {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        /* Kart tıklandığında dönecek sınıf */
+        .dondurme {
+            transform: rotateY(180deg);
+        }
+
+        .kart-on, .kart-arka {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Ön Yüz (Kavram) */
+        .kart-on {
+            background-color: #e67e22;
+            color: white;
+            border: 2px solid #d35400;
+        }
+
+        /* Arka Yüz (Anlamı) */
+        .kart-arka {
+            background-color: #9b59b6;
+            color: white;
+            transform: rotateY(180deg);
+            border: 2px solid #8e44ad;
+            white-space: pre-wrap; /* Satır başı desteği */
+        }
+
+        /* Bootstrap Ok Tuşlarının Renk Ayarı (Görünürlük için) */
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 15px;
+            background-size: 50%;
+        }
+    </style>
+</head>
+<body>
+
+             <header id="heady">
+            <div style="display: flex; gap: 25px; align-items: center;">
+                <a style="text-decoration: none;" href="index.html"><h3>Web<strong>site</strong></h3></a>
+                <div style="display: flex; gap: 15px;">
+                    <a href="kaykay.html">Kaydırma</a>
+                    <a href="ke.html">Kapalı eş</a>
+                    <a href="ae.html">Açık eş</a>
+                </div>
+            </div>
+            <button id="light-mode" onclick="light()" style="background-color: inherit; border-radius: 50%; border: none;">😁</button>
+        </header>
+        <br>
+        <br>
+        <br>   
+
+    <h1>Kart Çalışma Modu</h1>
+
+    <div class="carousel-container">
+        <!-- Bootstrap Carousel Bileşeni -->
+        <!-- data-bs-interval="false" otomatik kaymayı kapatır -->
+        <!-- data-bs-wrap="true" sonsuz döngü sağlar -->
+        <div id="kartCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="true">
+            <div class="carousel-inner" id="carousel-items-target">
+                <!-- JavaScript kartları buraya enjekte edecek -->
+            </div>
+
+            <!-- Sol Ok Tuşu -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#kartCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Önceki</span>
+            </button>
+            
+            <!-- Sağ Ok Tuşu -->
+            <button class="carousel-control-next" type="button" data-bs-target="#kartCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Sonraki</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript Bundle CDN -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script>
+        let toplamKartSayisi = 0;
+        let gecisKilitli = false; // Sonsuz döngü kilitlenmesini engellemek için
+
+        window.onload = function() {
+            carouselYükle();
+        };
+
+        function carouselYükle() {
+            let anaKartlar = localStorage.getItem('kayitliKartlar') ? JSON.parse(localStorage.getItem('kayitliKartlar')) : [];
+            let target = document.getElementById('carousel-items-target');
+
+            if (anaKartlar.length === 0) {
+                target.innerHTML = "<p class='text-center'>Çalışacak kart bulunamadı. Lütfen önce ana sayfadan kart ekleyin!</p>";
+                return;
+            }
+
+            toplamKartSayisi = anaKartlar.length;
+            target.innerHTML = ""; // Temizle
+
+            anaKartlar.forEach((kart, indeks) => {
+                // İlk kartın görünmesi için Bootstrap kuralı gereği 'active' sınıfı eklenmelidir
+                let activeClass = indeks === 0 ? "active" : "";
+
+                let itemHTML = `
+                    <div class="carousel-item ${activeClass}" data-index="${indeks}">
+                        <div class="kart-kapsayici">
+                            <div class="kart-ic" onclick="kartiDondur(this)">
+                                <div class="kart-on">${kart.onYuz}</div>
+                                <div class="kart-arka">${kart.arkaYuz}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                target.insertAdjacentHTML('beforeend', itemHTML);
+            });
+
+            // RASTGELE GEÇİŞ ALGORİTMASI 🎲
+            let carouselElement = document.getElementById('kartCarousel');
+            
+            // Kullanıcı oka bastığında veya kaydırdığında tetiklenir
+            carouselElement.addEventListener('slide.bs.carousel', function (olay) {
+                if (toplamKartSayisi <= 1 || gecisKilitli) return;
+
+                // Kullanıcının gitmek istediği varsayılan sıradaki indeks
+                let hedefIndeks = olay.to; 
+                let aktifIndeks = olay.from;
+
+                // Rastgele yeni bir indeks üret (Mevcut kartla aynı olmasın)
+                let rastgeleIndeks;
+                do {
+                    rastgeleIndeks = Math.floor(Math.random() * toplamKartSayisi);
+                } while (rastgeleIndeks === aktifIndeks);
+
+                // Eğer Bootstrap'in gitmeye çalıştığı indeks, bizim rastgele belirlediğimiz değilse yönü saptırıyoruz
+                if (hedefIndeks !== rastgeleIndeks) {
+                    olay.preventDefault(); // Varsayılan sıralı geçişi durdur
+                    
+                    gecisKilitli = true; // Kilit aç
+                    let carouselInstance = bootstrap.Carousel.getOrCreateInstance(carouselElement);
+                    carouselInstance.to(rastgeleIndeks); // Bizim seçtiğimiz rastgele karta zıpla
+                    
+                    // İşlem bittikten sonra kilidi kaldırıyoruz
+                    setTimeout(() => { gecisKilitli = false; }, 600);
+                }
+            });
+        }
+
+        // Tıklayınca 3B Döndürme Fonksiyonu
+        function kartiDondur(kartElemani) {
+            kartElemani.classList.toggle('dondurme');
+        }
+    </script>
+
+    <!--light-mode-->
+        <script>
+            function light(){
+                document.body.classList.toggle('light')
+                document.getElementById('searcher').classList.toggle('dark')
+            }
+            document.getElementById('light-mode').addEventListener('contextmenu', (event)=>{
+                event.preventDefault();
+                let color= prompt('I dont know why you clicked that but now you get to chose the color'); 
+                document.body.style.backgroundColor=color;
+            })
+        </script>
+</body>
+</html>
